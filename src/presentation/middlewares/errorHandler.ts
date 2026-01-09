@@ -11,8 +11,8 @@ export async function errorHandler(error: Error, request: FastifyRequest, reply:
     });
   }
 
-  // Log unexpected errors using Fastify's logger
-  request.log.error(error, 'Unexpected error occurred');
+  // Log unexpected errors using Fastify's logger (sanitize sensitive data in production)
+  request.log.error({ message: error.message, stack: error.stack }, 'Unexpected error occurred');
 
   return reply.status(500).send({
     error: {

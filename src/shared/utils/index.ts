@@ -13,14 +13,14 @@ export function hashApiKey(apiKey: string): string {
 }
 
 export function validateEmail(email: string): boolean {
-  // Basic email validation - consider using a library like validator.js for production
+  // RFC 5322 compliant regex - for production, consider using validator.js or zod
   const emailRegex =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
   return emailRegex.test(email);
 }
 
 export function sanitizeInput(input: string): string {
-  // Basic sanitization - consider using DOMPurify or validator.js for production
+  // Basic sanitization - for production, use DOMPurify or a schema validation library like zod
   // This removes common XSS vectors but is not comprehensive
   return input
     .trim()
