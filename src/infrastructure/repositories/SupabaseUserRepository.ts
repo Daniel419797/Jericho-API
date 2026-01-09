@@ -3,7 +3,10 @@ import { User } from '../../domain/entities/User';
 import { IDatabaseAdapter } from '../database/adapters/IDatabaseAdapter';
 
 export class SupabaseUserRepository implements IUserRepository {
-  constructor(private adapter: IDatabaseAdapter, private tableName = 'users') {}
+  constructor(
+    private adapter: IDatabaseAdapter,
+    private tableName = 'users',
+  ) {}
 
   async findById(id: string): Promise<User | null> {
     const rows = await this.adapter.query<User>(`SELECT * FROM ${this.tableName}`);
@@ -45,6 +48,8 @@ export class SupabaseUserRepository implements IUserRepository {
   }
 
   async verifyEmail(userId: string): Promise<void> {
-    await this.adapter.update<User>(this.tableName, userId, { isEmailVerified: true } as Partial<User>);
+    await this.adapter.update<User>(this.tableName, userId, {
+      isEmailVerified: true,
+    } as Partial<User>);
   }
 }
