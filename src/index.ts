@@ -14,6 +14,7 @@ async function start() {
     app.log.info(`Environment: ${config.server.env}`);
   } catch (error) {
     // Use console.error here as logger may not be initialized if buildApp fails
+    // eslint-disable-next-line no-console
     console.error('Error starting server:', error);
     process.exit(1);
   }

@@ -52,13 +52,30 @@ src/
 - **Multi-Tenant Architecture**: Project-based isolation with API keys
 - **Multiple Database Support**: Choose from Supabase, MongoDB, PostgreSQL, or MySQL
 - **Clean Architecture**: Separation of concerns with clear boundaries
+- **Dependency Injection**: Lightweight DI container for service management
+- **Modular Architecture**: Easy to extend with new feature modules
 - **Role-Based Access Control (RBAC)**: Flexible permission system
 - **API Key Management**: Secure API key generation and validation
 - **Schema Management**: Dynamic schema definition and validation
 - **File Management**: Support for multiple storage providers
 - **TypeScript**: Full type safety and excellent developer experience
 - **Fastify**: High-performance web framework
-- **Modular Monolith**: Easy to understand and maintain
+- **Supabase Integration**: Platform-level database with real-time capabilities
+
+## 🎯 Core Backend Bootstrap
+
+The Jericho-API backend is bootstrapped with:
+
+1. **Fastify Server**: High-performance HTTP server with plugin ecosystem
+2. **Dependency Injection Container**: Manages service lifecycle and dependencies
+3. **Environment Configuration**: Type-safe config loader with multi-tenant support
+4. **Supabase Integration**: Platform database client for user/project management
+5. **Module System**: Pre-configured modules for auth, users, and projects
+6. **Route Registration**: Automatic API endpoint registration with versioning
+7. **Security Middleware**: CORS, Helmet, and rate limiting built-in
+8. **Health Checks**: Monitoring endpoint for service availability
+9. **Logging**: Structured logging with Pino
+10. **Testing**: Jest integration tests for API endpoints
 
 ## 🎯 User Tiers
 
@@ -236,6 +253,132 @@ Jericho-API supports multiple authentication methods:
 2. **API Keys**: For programmatic access
 3. **OAuth** (Coming soon): Social login support
 
+## 🔧 Extending the API
+
+### Adding a New Module
+
+Jericho-API is designed to be easily extensible. To add a new feature module:
+
+1. **Create the module structure:**
+```bash
+mkdir -p src/modules/your-feature/{domain,application,infrastructure,presentation}
+```
+
+2. **Create the service** (`src/modules/your-feature/application/yourFeatureService.ts`):
+```typescript
+export class YourFeatureService {
+  async create(data: Record<string, unknown>) {
+    // Implement your logic
+  }
+  
+  async getById(id: string) {
+    // Implement your logic
+  }
+}
+```
+
+3. **Create the controller** (`src/modules/your-feature/presentation/yourFeatureController.ts`):
+```typescript
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { container } from '../../../shared/container';
+import { YourFeatureService } from '../application/yourFeatureService';
+
+export const yourFeatureController = {
+  async create(request: FastifyRequest, reply: FastifyReply) {
+    const service = container.resolve<YourFeatureService>('YourFeatureService');
+    const result = await service.create(request.body as Record<string, unknown>);
+    return reply.send(result);
+  },
+};
+```
+
+4. **Create the routes** (`src/modules/your-feature/presentation/routes.ts`):
+```typescript
+import { FastifyInstance } from 'fastify';
+import { yourFeatureController } from './yourFeatureController';
+
+export async function yourFeatureRoutes(app: FastifyInstance) {
+  app.post('/', yourFeatureController.create);
+  app.get('/:id', yourFeatureController.getById);
+}
+```
+
+5. **Register in DI container** (`src/config/container.ts`):
+```typescript
+import { YourFeatureService } from '../modules/your-feature/application/yourFeatureService';
+
+// Add to setupContainer function:
+container.registerFactory('YourFeatureService', () => {
+  return new YourFeatureService();
+});
+```
+
+6. **Register routes** (`src/presentation/app.ts`):
+```typescript
+import { yourFeatureRoutes } from '../modules/your-feature/presentation/routes';
+
+// In buildApp function:
+await app.register(yourFeatureRoutes, { prefix: '/api/v1/your-feature' });
+```
+
+### Dependency Injection Container
+
+The API uses a lightweight DI container for managing service dependencies:
+
+```typescript
+import { container } from './shared/container';
+
+// Register a service instance
+container.register('MyService', myServiceInstance);
+
+// Register a factory for lazy initialization
+container.registerFactory('MyService', () => new MyService());
+
+// Resolve a service
+const service = container.resolve<MyService>('MyService');
+```
+
+**Benefits:**
+- Loose coupling between components
+- Easy testing with mock services
+- Centralized service management
+- Lazy initialization of services
+
+### Available Services
+
+The following services are registered in the DI container:
+
+- **SupabaseService**: Platform database client
+- **AuthService**: Authentication and authorization
+- **UsersService**: User management
+- **ProjectsService**: Project management
+- **SupabaseAdapter**: Supabase database adapter
+- **MongoDBAdapter**: MongoDB database adapter
+- **PostgreSQLAdapter**: PostgreSQL database adapter
+- **MySQLAdapter**: MySQL database adapter
+
+### Working with Database Adapters
+
+To use a database adapter in your service:
+
+```typescript
+import { container } from '../../../shared/container';
+import { IDatabaseAdapter } from '../../../infrastructure/database/adapters';
+
+export class MyService {
+  private db: IDatabaseAdapter;
+
+  constructor() {
+    // Resolve the appropriate adapter based on configuration
+    this.db = container.resolve<IDatabaseAdapter>('SupabaseAdapter');
+  }
+
+  async getData() {
+    return await this.db.query('SELECT * FROM my_table');
+  }
+}
+```
+
 ## 🏢 Project Structure Best Practices
 
 Each module follows the same structure:
@@ -285,4 +428,13 @@ For support, please open an issue in the GitHub repository.
 
 ---
 
-**Note**: This is a boilerplate/foundation structure. Implementation of business logic is pending and marked with `TODO` comments throughout the codebase.
+**Status**: ✅ Core backend bootstrap completed. The API server is ready for development with:
+- Fastify server with health checks
+- Dependency injection container
+- Supabase platform database integration
+- Module routes (auth, users, projects) registered
+- Environment-driven configuration
+- Security middleware (CORS, Helmet, Rate Limiting)
+- Test infrastructure with Jest
+
+**Next Steps**: Implement business logic in module services and add domain models.
