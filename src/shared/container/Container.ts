@@ -31,7 +31,10 @@ export class Container {
 
     // Check if factory exists and create instance
     if (this.factories.has(name)) {
-      const factory = this.factories.get(name)!;
+      const factory = this.factories.get(name);
+      if (!factory) {
+        throw new Error(`Service "${name}" factory is undefined`);
+      }
       const instance = factory();
       this.services.set(name, instance);
       return instance as T;
