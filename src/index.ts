@@ -10,9 +10,10 @@ async function start() {
       host: config.server.host,
     });
 
-    console.log(`Server running on http://${config.server.host}:${config.server.port}`);
-    console.log(`Environment: ${config.server.env}`);
+    app.log.info(`Server running on http://${config.server.host}:${config.server.port}`);
+    app.log.info(`Environment: ${config.server.env}`);
   } catch (error) {
+    // Use console.error here as logger may not be initialized if buildApp fails
     console.error('Error starting server:', error);
     process.exit(1);
   }
