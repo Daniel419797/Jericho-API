@@ -1,0 +1,11 @@
+# Enforce LF line endings across the repository
+* text=auto eol=lf
+
+# Ensure specific file types are treated as text
+*.ts text
+*.js text
+*.json text
+*.md text
+*.yml text
+*.yaml text
+*.sh text
