@@ -3,8 +3,15 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import { config } from '../config';
+import { setupContainer } from '../config/container';
+import { authRoutes } from '../modules/auth/presentation/routes';
+import { usersRoutes } from '../modules/users/presentation/routes';
+import { projectsRoutes } from '../modules/projects/presentation/routes';
 
 export async function buildApp(): Promise<FastifyInstance> {
+  // Setup dependency injection container
+  setupContainer();
+
   const app = Fastify({
     logger: {
       level: config.logging.level,
@@ -38,10 +45,10 @@ export async function buildApp(): Promise<FastifyInstance> {
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
 
-  // TODO: Register module routes here
-  // await app.register(authRoutes, { prefix: '/api/v1/auth' });
-  // await app.register(usersRoutes, { prefix: '/api/v1/users' });
-  // await app.register(projectsRoutes, { prefix: '/api/v1/projects' });
+  // Register module routes
+  await app.register(authRoutes, { prefix: '/api/v1/auth' });
+  await app.register(usersRoutes, { prefix: '/api/v1/users' });
+  await app.register(projectsRoutes, { prefix: '/api/v1/projects' });
 
   return app;
 }
